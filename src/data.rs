@@ -2,7 +2,7 @@ use std::{sync::Arc, time::Instant};
 
 use teloxide::{
     prelude::*,
-    types::{Message, ParseMode},
+    types::{Message, MessageEntityKind, ParseMode, User},
 };
 
 use crate::helpers::config::Config;
@@ -28,6 +28,25 @@ impl Context {
 
     pub fn author_id(&self) -> Option<u64> {
         self.message.from.as_ref().map(|user| user.id.0)
+    }
+
+    pub fn target_user(&self) -> Option<User> {
+        if let Some(user) = self
+            .message
+            .reply_to_message()
+            .and_then(|reply| reply.from.as_ref())
+        {
+            return Some(user.clone());
+        }
+
+        self.message
+            .entities()
+            .into_iter()
+            .flatten()
+            .find_map(|entity| match &entity.kind {
+                MessageEntityKind::TextMention { user } => Some(user.clone()),
+                _ => None,
+            })
     }
 
     pub fn author_mention(&self) -> String {
@@ -57,5 +76,12 @@ impl Context {
             .await?;
 
         Ok(())
+    }
+}
+
+pub fn mention_of(user: &User) -> String {
+    match &user.username {
+        Some(username) => format!("@{username}"),
+        None => user.first_name.clone(),
     }
 }

@@ -90,3 +90,13 @@ Use `teloxide::prelude::*` for the common teloxide traits and types.
 - `docker-compose.yml` loads `.env` through `env_file` and keeps `logs/` in named volumes.
 - `.dockerignore` keeps `.env`, `logs/`, `auth/`, `.git` and build output out of the image. Never copy secrets into the image.
 - Build and run: `docker compose up --build`.
+
+## Chat Management Commands
+
+- Telegram command names only allow `a-z`, `0-9` and `_`; use `#[command(rename = "ban_member")]` for names with underscores.
+- Every command must also be listed in `CATEGORIES` (`src/commands/mod.rs`), which feeds `/menu`; a test enforces it.
+- Group commands live in `src/commands/group/`; use `require_group(ctx)?` or `require_chat_admin(ctx).await?` (`src/utils/checks.rs`). Both fail with `CommandError::NotInGroup` / `PermissionDenied`.
+- `ctx.target_user()` resolves the target from a replied message or a text mention (users without `@username`); a numeric ID argument is the fallback.
+- Commands also run when sent as a photo caption (`handle_message` falls back to `message.caption()`), which is how `/sticker` works.
+- `/sticker [crop] [center]` uses the `image` and `webp` crates (`src/utils/sticker.rs`): `crop` is `true` (fill and crop, default), `false` (fit with transparent bars) or `dented` (stretched); `center` is `true` (default) or `false`.
+- The Bot API cannot list all members, add users or create groups, so only `admins`, `ban_member`, `invite` and `leave` exist.

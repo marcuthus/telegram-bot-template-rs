@@ -8,6 +8,8 @@ use crate::data::{Context, Error};
 pub enum CommandError {
     #[error("permissão negada")]
     PermissionDenied,
+    #[error("comando restrito a grupos")]
+    NotInGroup,
 }
 
 pub async fn handle(ctx: &Context, command_name: &str, error: Error) {
@@ -16,6 +18,7 @@ pub async fn handle(ctx: &Context, command_name: &str, error: Error) {
             "<pre>Permission Error:\n{}, você não possui permissão para usar este comando.</pre>",
             html::escape(&ctx.author_mention())
         ),
+        Some(CommandError::NotInGroup) => String::from("Este comando só funciona em grupos."),
         None => {
             error!(target: "client", "Erro no comando `{command_name}`: {error:?}");
 

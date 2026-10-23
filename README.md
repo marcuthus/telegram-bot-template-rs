@@ -90,6 +90,24 @@ Os comandos são sincronizados com o menu do Telegram na inicialização (`set_m
 
 Crie `src/events/<evento>.rs` e registre um novo ramo no handler `dptree` em `src/client.rs`.
 
+## 💡 Comandos de exemplo
+
+| Comando                    | Descrição                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| `/ping`                    | Mostra o ping do bot.                                                          |
+| `/menu`                    | Menu de comandos por categoria.                                                |
+| `/id [id]`                 | Seu ID, ou o de quem você respondeu/mencionou (menção sem @username).          |
+| `/chat_id`                 | ID do chat ou grupo atual.                                                     |
+| `/admins`                  | Lista os administradores do grupo e seus IDs.                                  |
+| `/ban_member [id]`         | Bane um membro (responda a mensagem dele). Apenas admins.                      |
+| `/invite`                  | Gera o link de convite do grupo. Apenas admins.                                |
+| `/leave`                   | O bot sai do grupo. Apenas admins.                                             |
+| `/sticker [crop] [center]` | Cria um sticker a partir de uma foto (legenda ou resposta). `crop`: `true` (padrão), `false` ou `dented`; `center`: `true` (padrão) ou `false`. |
+| `/sum <a> <b>`             | Soma dois números (exemplo).                                                   |
+| `/uptime`                  | Tempo online do bot (apenas dono).                                             |
+
+> A Bot API do Telegram não permite listar todos os membros, adicionar usuários nem criar grupos; por isso não há equivalentes de `members`, `add-member` e `create-group`. Os nomes dos comandos usam `_` porque o Telegram não aceita `-`.
+
 ## 🐳 Docker
 
 O projeto inclui um `Dockerfile` (multi-stage, executa como usuário sem privilégios) e um `docker-compose.yml`. As variáveis são lidas do arquivo `.env` (copie o `.env.example`); o `.env` nunca entra na imagem.
