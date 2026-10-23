@@ -90,6 +90,17 @@ Os comandos são sincronizados com o menu do Telegram na inicialização (`set_m
 
 Crie `src/events/<evento>.rs` e registre um novo ramo no handler `dptree` em `src/client.rs`.
 
+## 🐳 Docker
+
+O projeto inclui um `Dockerfile` (multi-stage, executa como usuário sem privilégios) e um `docker-compose.yml`. As variáveis são lidas do arquivo `.env` (copie o `.env.example`); o `.env` nunca entra na imagem.
+
+```bash
+docker compose up -d --build
+docker compose logs -f
+```
+
+O volume `logs` guarda os logs do bot.
+
 ## ⚖️ Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
