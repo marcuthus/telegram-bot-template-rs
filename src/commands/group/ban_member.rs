@@ -2,7 +2,7 @@ use teloxide::{prelude::*, types::UserId, utils::html};
 
 use crate::{
     data::{Context, Error, mention_of},
-    utils::checks::require_chat_admin,
+    utils::checks::{is_bot_owner_id, require_chat_admin},
 };
 
 pub async fn run(ctx: &Context, argument: &str) -> Result<(), Error> {
@@ -29,6 +29,39 @@ pub async fn run(ctx: &Context, argument: &str) -> Result<(), Error> {
 
     if ctx.author_id() == Some(user_id.0) {
         ctx.reply("Você não pode banir a si mesmo.").await?;
+        return Ok(());
+    }
+
+    // O bot bane com as próprias permissões: sem checar o alvo, um administrador comum poderia
+    // remover outros administradores (ou o dono) que o bot tenha permissão de banir.
+    let bot_id = ctx.bot.get_me().await?.id;
+
+    if user_id == bot_id {
+        ctx.reply("Não posso banir a mim mesmo.").await?;
+        return Ok(());
+    }
+
+    let target_is_staff = match ctx.bot.get_chat_member(ctx.message.chat.id, user_id).await {
+        Ok(member) => member.is_privileged(),
+        Err(_) => false,
+    };
+
+    let author_is_creator = match ctx.author_id() {
+        Some(author_id) => {
+            is_bot_owner_id(author_id, &ctx.data.config.admin_id)
+                || ctx
+                    .bot
+                    .get_chat_member(ctx.message.chat.id, UserId(author_id))
+                    .await
+                    .map(|member| member.is_owner())
+                    .unwrap_or(false)
+        }
+        None => false,
+    };
+
+    if target_is_staff && !author_is_creator {
+        ctx.reply("Apenas o criador do grupo pode banir outro administrador.")
+            .await?;
         return Ok(());
     }
 
